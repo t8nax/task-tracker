@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+
 	"github.com/t8nax/task-tracker/internal/services"
 	jsonstorage "github.com/t8nax/task-tracker/internal/storage/json"
 )
@@ -24,9 +25,25 @@ func Run(args []string) {
 		}
 
 		for _, task := range tasks {
-			fmt.Printf("ID: %d Description: %s Status: %s", task.Id, task.Description, task.Status)
+			fmt.Printf("ID: %d Description: %s Status: %s\n", task.Id, task.Description, task.Status)
 		}
+	case commandAdd:
+		description := args[2]
+
+		if description == "" {
+			fmt.Println("To add task description must be specified")
+			return
+		}
+
+		task, err := service.AddTask(description)
+
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		fmt.Printf("Task added successfully (ID: %d)\n", task.Id)
 	default:
-		fmt.Printf("Unknown command: %s.", command)
+		fmt.Printf("Unknown command: %s\n", command)
 	}
 }

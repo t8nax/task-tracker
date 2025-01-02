@@ -41,7 +41,7 @@ func decode(file *os.File) ([]models.Task, error) {
 }
 
 func (s *JsonStorage) UpdateAll(tasks []models.Task) error {
-	file, err := os.OpenFile(fileName, os.O_WRONLY, fs.FileMode(0644))
+	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY, fs.FileMode(0644))
 
 	if err != nil {
 		return fmt.Errorf("unable to open database file %s: %w", fileName, err)
