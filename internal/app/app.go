@@ -2,7 +2,9 @@ package app
 
 import (
 	"fmt"
+	"strconv"
 
+	"github.com/t8nax/task-tracker/internal/models"
 	"github.com/t8nax/task-tracker/internal/services"
 	jsonstorage "github.com/t8nax/task-tracker/internal/storage/json"
 )
@@ -25,7 +27,7 @@ func Run(args []string) {
 		}
 
 		for _, task := range tasks {
-			fmt.Printf("ID: %d Description: %s Status: %s\n", task.Id, task.Description, task.Status)
+			fmt.Printf("ID: %d Description: %s Status: %s\n", task.ID, task.Description, task.Status)
 		}
 	case commandAdd:
 		description := args[2]
@@ -42,7 +44,20 @@ func Run(args []string) {
 			return
 		}
 
-		fmt.Printf("Task added successfully (ID: %d)\n", task.Id)
+		fmt.Printf("Task added successfully (ID: %d)\n", task.ID)
+	case commandMarkDone:
+		ID, err := strconv.ParseUint(args[2], 10, 64)
+
+		if err != nil {
+			fmt.Println("Unable to parse task ID")
+			return
+		}
+
+		err = service.Mark(ID, models.StatusDone)
+
+		if err != nil {
+			fmt.Println(err)
+		}
 	default:
 		fmt.Printf("Unknown command: %s\n", command)
 	}

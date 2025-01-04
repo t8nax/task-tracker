@@ -15,7 +15,7 @@ func TestNewTaskService_ReturnsInstance_WhenStorageIsValid(t *testing.T) {
 }
 
 func TestNewTaskService_Panics_WhenStorageIsNil(t *testing.T) {
-	assert.PanicsWithValue(t, StorageMustNotBeNilStr, func() {
+	assert.PanicsWithValue(t, storageMustNotBeNilStr, func() {
 		NewTaskService(nil)
 	})
 }

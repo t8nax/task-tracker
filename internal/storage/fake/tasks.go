@@ -21,7 +21,7 @@ func (s *FakeStorage) UpdateAll(tasks []models.Task) error {
 	}
 
 	for _, task := range tasks {
-		entities[task.Id] = task
+		entities[task.ID] = task
 	}
 
 	return nil

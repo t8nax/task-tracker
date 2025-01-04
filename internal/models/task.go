@@ -11,7 +11,7 @@ const (
 )
 
 type Task struct {
-	Id          uint64    `json:"id"`
+	ID          uint64    `json:"id"`
 	Description string    `json:"description"`
 	Status      Status    `json:"status"`
 	CreatedAt   time.Time `json:"created_at"`
