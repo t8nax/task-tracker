@@ -45,7 +45,7 @@ func Run(args []string) {
 		}
 
 		fmt.Printf("Task added successfully (ID: %d)\n", task.ID)
-	case commandMarkDone:
+	case commandMarkDone, commandMarkInProgress:
 		ID, err := strconv.ParseUint(args[2], 10, 64)
 
 		if err != nil {
@@ -53,7 +53,11 @@ func Run(args []string) {
 			return
 		}
 
-		err = service.Mark(ID, models.StatusDone)
+		if command == commandMarkInProgress {
+			err = service.Mark(ID, models.StatusInProgress)
+		} else {
+			err = service.Mark(ID, models.StatusDone)
+		}
 
 		if err != nil {
 			fmt.Println(err)
