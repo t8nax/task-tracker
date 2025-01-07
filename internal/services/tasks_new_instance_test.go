@@ -1,15 +1,15 @@
-package services
+package tasksrv
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	storage "github.com/t8nax/task-tracker/internal/storage/fake"
+	fake_storage "github.com/t8nax/task-tracker/internal/storage/fake"
 )
 
 func TestNewTaskService_ReturnsInstance_WhenStorageIsValid(t *testing.T) {
-	storage := storage.FakeStorage{}
-	service := NewTaskService(&storage)
+	storage := fake_storage.NewFakeStorage()
+	service := NewTaskService(storage)
 
 	assert.NotNil(t, service)
 }

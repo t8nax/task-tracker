@@ -7,4 +7,5 @@ const (
 	commandAdd            Command = "add"
 	commandMarkDone       Command = "mark-done"
 	commandMarkInProgress Command = "mark-in-progress"
+	commandUpdate         Command = "update"
 )

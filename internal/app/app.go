@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/t8nax/task-tracker/internal/models"
-	"github.com/t8nax/task-tracker/internal/services"
+	tasksrv "github.com/t8nax/task-tracker/internal/services"
 	jsonstorage "github.com/t8nax/task-tracker/internal/storage/json"
 )
 
@@ -17,7 +17,7 @@ func Run(args []string) {
 
 	command := Command(args[1])
 	storage := &jsonstorage.JsonStorage{}
-	service := services.NewTaskService(storage)
+	service := tasksrv.NewTaskService(storage)
 
 	switch command {
 	case commandList:
@@ -31,12 +31,6 @@ func Run(args []string) {
 		}
 	case commandAdd:
 		description := args[2]
-
-		if description == "" {
-			fmt.Println("To add task description must be specified")
-			return
-		}
-
 		task, err := service.AddTask(description)
 
 		if err != nil {
@@ -54,10 +48,25 @@ func Run(args []string) {
 		}
 
 		if command == commandMarkInProgress {
-			err = service.Mark(ID, models.StatusInProgress)
+			_, err = service.MarkTask(ID, models.StatusInProgress)
 		} else {
-			err = service.Mark(ID, models.StatusDone)
+			_, err = service.MarkTask(ID, models.StatusDone)
 		}
+
+		if err != nil {
+			fmt.Println(err)
+		}
+	case commandUpdate:
+		ID, err := strconv.ParseUint(args[2], 10, 64)
+
+		if err != nil {
+			fmt.Println("Unable to parse task ID")
+			return
+		}
+
+		description := args[3]
+
+		_, err = service.UpdateDescription(ID, description)
 
 		if err != nil {
 			fmt.Println(err)

@@ -1,4 +1,4 @@
-package services
+package tasksrv
 
 import (
 	"errors"
@@ -34,7 +34,9 @@ func NewTaskService(s storage.Storage) *TaskService {
 		panic(storageMustNotBeNilStr)
 	}
 
-	return &TaskService{storage: s}
+	return &TaskService{
+		storage: s,
+	}
 }
 
 func (s *TaskService) GetAllTasks() ([]models.Task, error) {
@@ -89,36 +91,71 @@ func (s *TaskService) AddTask(description string) (*models.Task, error) {
 	return &task, nil
 }
 
-func (s *TaskService) Mark(ID uint64, status models.Status) error {
+func (s *TaskService) MarkTask(ID uint64, status models.Status) (*models.Task, error) {
 	if status != models.StatusInProgress && status != models.StatusDone {
-		return getErrInvalidStatus()
+		return nil, getErrInvalidStatus()
 	}
 
+	task, err := s.update(ID, "", status)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return task, err
+}
+
+func (s *TaskService) UpdateDescription(ID uint64, description string) (*models.Task, error) {
+	if description == "" {
+		return nil, errEmptyDescription
+	}
+
+	task, err := s.update(ID, description, "")
+
+	if err != nil {
+		return nil, err
+	}
+
+	return task, err
+}
+
+func (s *TaskService) update(ID uint64, description string, status models.Status) (*models.Task, error) {
 	tasks, err := s.GetAllTasks()
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	marked := false
+	task, err := s.get(ID, tasks)
 
-	for i, task := range tasks {
-		if task.ID == ID {
-			tasks[i].Status = status
-			marked = true
-			break
-		}
+	if err != nil {
+		return nil, err
 	}
 
-	if !marked {
-		return getErrTaskNotFound(ID)
+	if status != "" {
+		task.Status = status
+	}
+	if description != "" {
+		task.Description = description
 	}
 
+	task.UpdatedAt = time.Now()
+	fmt.Println(task)
 	err = s.storage.UpdateAll(tasks)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return task, nil
+}
+
+func (s *TaskService) get(ID uint64, tasks []models.Task) (*models.Task, error) {
+	for i, task := range tasks {
+		if task.ID == ID {
+			return &tasks[i], nil
+		}
+	}
+
+	return nil, getErrTaskNotFound(ID)
 }

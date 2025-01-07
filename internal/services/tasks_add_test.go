@@ -1,4 +1,4 @@
-package services
+package tasksrv
 
 import (
 	"errors"
@@ -9,16 +9,14 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/t8nax/task-tracker/internal/models"
-	storage "github.com/t8nax/task-tracker/internal/storage/fake"
+	fake_storage "github.com/t8nax/task-tracker/internal/storage/fake"
 	mock_storage "github.com/t8nax/task-tracker/internal/storage/mocks"
 	mathutils "github.com/t8nax/task-tracker/pkg/math"
 )
 
 func TestAddTask_SuccessfullyAddsTask_WhenDescriptionIsVaild(t *testing.T) {
-	storage := storage.FakeStorage{}
-	service := &TaskService{
-		storage: &storage,
-	}
+	storage := fake_storage.NewFakeStorage()
+	service := NewTaskService(storage)
 
 	now := time.Now()
 
@@ -42,10 +40,8 @@ func TestAddTask_SuccessfullyAddsTask_WhenDescriptionIsVaild(t *testing.T) {
 }
 
 func TestAddTask_ReturnsError_WhenDescriptionIsEmpty(t *testing.T) {
-	storage := storage.FakeStorage{}
-	service := &TaskService{
-		storage: &storage,
-	}
+	storage := fake_storage.NewFakeStorage()
+	service := NewTaskService(storage)
 
 	in := ""
 	task, err := service.AddTask(in)
@@ -58,9 +54,7 @@ func TestAddTask_ReturnsError_WhenDescriptionIsEmpty(t *testing.T) {
 func TestAddTask_ReturnsError_WhenStorageGetAllFails(t *testing.T) {
 	ctl := gomock.NewController(t)
 	storage := mock_storage.NewMockStorage(ctl)
-	service := &TaskService{
-		storage: storage,
-	}
+	service := NewTaskService(storage)
 	defer ctl.Finish()
 
 	storageErr := errors.New("DB is down")
@@ -78,9 +72,7 @@ func TestAddTask_ReturnsError_WhenStorageGetAllFails(t *testing.T) {
 func TestAddTask_ReturnsError_WhenStorageUpdateAllFails(t *testing.T) {
 	ctl := gomock.NewController(t)
 	storage := mock_storage.NewMockStorage(ctl)
-	service := &TaskService{
-		storage: storage,
-	}
+	service := NewTaskService(storage)
 	defer ctl.Finish()
 
 	storageErr := errors.New("DB is down")
@@ -100,9 +92,7 @@ func TestAddTask_ReturnsError_WhenStorageUpdateAllFails(t *testing.T) {
 func TestAddTasks_ReturnsError_WhenFailedToGenerateTaskId(t *testing.T) {
 	ctl := gomock.NewController(t)
 	storage := mock_storage.NewMockStorage(ctl)
-	service := &TaskService{
-		storage: storage,
-	}
+	service := NewTaskService(storage)
 	defer ctl.Finish()
 
 	storage.EXPECT().GetAll().Return([]models.Task{

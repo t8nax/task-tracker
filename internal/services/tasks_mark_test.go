@@ -1,4 +1,4 @@
-package services
+package tasksrv
 
 import (
 	"errors"
@@ -8,15 +8,13 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/t8nax/task-tracker/internal/models"
-	storage "github.com/t8nax/task-tracker/internal/storage/fake"
+	fake_storage "github.com/t8nax/task-tracker/internal/storage/fake"
 	mock_storage "github.com/t8nax/task-tracker/internal/storage/mocks"
 )
 
-func TestMark_ReturnsNil_WhenInputIsValid(t *testing.T) {
-	storage := storage.FakeStorage{}
-	service := &TaskService{
-		storage: &storage,
-	}
+func TestMarkTask_SuccessfulyMarksTask_WhenInputIsValid(t *testing.T) {
+	storage := fake_storage.NewFakeStorage()
+	service := NewTaskService(storage)
 
 	now := time.Now()
 
@@ -25,32 +23,33 @@ func TestMark_ReturnsNil_WhenInputIsValid(t *testing.T) {
 		Description: "Task 1",
 		Status:      models.StatusToDo,
 		CreatedAt:   now,
-		UpdatedAt:   now,
+		UpdatedAt:   now.Add(-24 * time.Hour),
 	}})
 
-	err := service.Mark(1, models.StatusDone)
+	now = time.Now()
+	task, err := service.MarkTask(1, models.StatusDone)
 
 	assert.NoError(t, err)
+	assert.NotNil(t, task)
+	assert.Equal(t, models.StatusDone, task.Status)
+	assert.WithinDuration(t, now, task.UpdatedAt, time.Second)
 }
 
-func TestMark_ReturnsError_WhenIDIsInvalid(t *testing.T) {
-	storage := storage.FakeStorage{}
-	service := &TaskService{
-		storage: &storage,
-	}
+func TestMarkTask_ReturnsError_WhenIDIsInvalid(t *testing.T) {
+	storage := fake_storage.NewFakeStorage()
+	service := NewTaskService(storage)
 
-	ID := uint64(0)
-	err := service.Mark(ID, models.StatusDone)
+	ID := uint64(1)
+	task, err := service.MarkTask(ID, models.StatusDone)
 
+	assert.Nil(t, task)
 	assert.Error(t, err)
 	assert.EqualError(t, getErrTaskNotFound(ID), err.Error())
 }
 
-func TestMark_ReturnsError_WhenStatusIsInvalid(t *testing.T) {
-	storage := storage.FakeStorage{}
-	service := &TaskService{
-		storage: &storage,
-	}
+func TestMarkTask_ReturnsError_WhenStatusIsInvalid(t *testing.T) {
+	storage := fake_storage.NewFakeStorage()
+	service := NewTaskService(storage)
 
 	tests := []struct {
 		name   string
@@ -68,38 +67,38 @@ func TestMark_ReturnsError_WhenStatusIsInvalid(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := service.Mark(1, tt.status)
+			task, err := service.MarkTask(1, tt.status)
 
+			assert.Nil(t, task)
 			assert.Error(t, err)
 			assert.EqualError(t, getErrInvalidStatus(), err.Error())
 		})
 	}
 }
 
-func TestAddTasks_ReturnsError_WhenFailedToGetTasks(t *testing.T) {
+func TestMarkTask_ReturnsError_WhenFailedToGetTasks(t *testing.T) {
 	ctl := gomock.NewController(t)
 	storage := mock_storage.NewMockStorage(ctl)
-	service := &TaskService{
-		storage: storage,
-	}
+	service := NewTaskService(storage)
+
 	defer ctl.Finish()
 
 	storageErr := errors.New("DB is down")
 	storage.EXPECT().GetAll().Return(nil, storageErr)
 
-	err := service.Mark(1, models.StatusDone)
+	task, err := service.MarkTask(1, models.StatusDone)
 
+	assert.Nil(t, task)
 	assert.Error(t, err)
 	assert.ErrorIs(t, err, storageErr)
 	assert.Contains(t, err.Error(), storageErr.Error())
 }
 
-func TestAddTasks_ReturnsError_WhenFailedToUpdateTasks(t *testing.T) {
+func TestMarkTask_ReturnsError_WhenFailedToUpdateTasks(t *testing.T) {
 	ctl := gomock.NewController(t)
 	storage := mock_storage.NewMockStorage(ctl)
-	service := &TaskService{
-		storage: storage,
-	}
+	service := NewTaskService(storage)
+
 	defer ctl.Finish()
 
 	storage.EXPECT().GetAll().Return([]models.Task{
@@ -112,8 +111,9 @@ func TestAddTasks_ReturnsError_WhenFailedToUpdateTasks(t *testing.T) {
 	storageErr := errors.New("DB is down")
 	storage.EXPECT().UpdateAll(gomock.Any()).Return(storageErr)
 
-	err := service.Mark(1, models.StatusDone)
+	task, err := service.MarkTask(1, models.StatusDone)
 
+	assert.Nil(t, task)
 	assert.Error(t, err)
 	assert.ErrorIs(t, err, storageErr)
 	assert.Contains(t, err.Error(), storageErr.Error())
