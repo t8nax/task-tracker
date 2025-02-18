@@ -11,9 +11,14 @@ test100:
 	go test -v -count=100 ./...
 
 .PHONY: gen
-gen:
-	mockgen -source=internal/storage/storage.go \
-	-destination=internal/storage/mocks/mock_storage.go
+gen-repo:
+	mockgen -source=internal/task/repository.go \
+	-destination=internal/tsak/repository/mock_repository.go
+
+.PHONY: gen-ucase
+gen-ucase:
+	mockgen -source=internal/task/usecase.go \
+	-destination=internal/task/usecase/mock_usecase.go
 
 .PHONY: cover
 cover:
