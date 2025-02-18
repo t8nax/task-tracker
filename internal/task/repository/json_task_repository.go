@@ -1,4 +1,4 @@
-package storage
+package repository
 
 import (
 	"encoding/json"
@@ -6,17 +6,17 @@ import (
 	"io/fs"
 	"os"
 
-	"github.com/t8nax/task-tracker/internal/models"
+	"github.com/t8nax/task-tracker/internal/task/entity"
 	"github.com/t8nax/task-tracker/pkg/files"
 )
 
 const fileName = "tasks.json"
 
-type JsonStorage struct{}
+type JsonRepository struct{}
 
-func (s *JsonStorage) GetAll() ([]models.Task, error) {
+func (s *JsonRepository) GetAll() ([]entity.Task, error) {
 	if !files.Exists(fileName) {
-		return []models.Task{}, nil
+		return []entity.Task{}, nil
 	}
 
 	file, err := os.Open(fileName)
@@ -28,8 +28,8 @@ func (s *JsonStorage) GetAll() ([]models.Task, error) {
 	return decode(file)
 }
 
-func decode(file *os.File) ([]models.Task, error) {
-	tasks := make([]models.Task, 0)
+func decode(file *os.File) ([]entity.Task, error) {
+	tasks := make([]entity.Task, 0)
 	decoder := json.NewDecoder(file)
 	err := decoder.Decode(&tasks)
 
@@ -40,7 +40,7 @@ func decode(file *os.File) ([]models.Task, error) {
 	return tasks, nil
 }
 
-func (s *JsonStorage) UpdateAll(tasks []models.Task) error {
+func (s *JsonRepository) UpdateAll(tasks []entity.Task) error {
 	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY, fs.FileMode(0644))
 
 	if err != nil {
