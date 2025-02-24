@@ -6,6 +6,10 @@ import (
 	"github.com/t8nax/task-tracker/internal/task"
 )
 
+func getTaskAddedMessage(ID uint64) string {
+	return fmt.Sprintf("Task added successfully (ID: %d)", ID)
+}
+
 type AddCommandHanlder struct {
 	uCase task.TaskUseCase
 }
@@ -22,5 +26,5 @@ func (h *AddCommandHanlder) Execute(args []string) ([]string, error) {
 		return nil, err
 	}
 
-	return []string{fmt.Sprintf("Task added successfully (ID: %d)", task.ID)}, nil
+	return []string{getTaskAddedMessage(task.ID)}, nil
 }

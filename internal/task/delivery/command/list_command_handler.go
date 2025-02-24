@@ -18,7 +18,7 @@ func (h *ListCommandHanlder) Execute(args []string) ([]string, error) {
 	}
 
 	const template = "01-02-2026 15:04:05"
-	res := make([]string, len(tasks))
+	res := make([]string, 0, len(tasks))
 
 	for _, task := range tasks {
 		res = append(res, fmt.Sprintf("ID: %d; Description: %s; Status: %s; Created at: %s; Updated at: %s",
