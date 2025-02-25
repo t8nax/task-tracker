@@ -14,6 +14,7 @@ var errEmptyDescription = errors.New("description must not be empty")
 var errRepoGetTasks = errors.New("failed to get tasks")
 var errRepoAddTask = errors.New("failed to add task ")
 var errRepoUpdateTask = errors.New("failed to update task")
+var errRepoDeleteTask = errors.New("failed to delete task")
 var errGenerateTaskID = errors.New("failed to generate task ID")
 
 var repoMustNotBeNilStr = "repository must not be nil"
@@ -99,13 +100,7 @@ func (u *TaskUseCase) UpdateTask(ID uint64, status entity.Status, description st
 		return nil, err
 	}
 
-	var task *entity.Task = nil
-
-	for i := range tasks {
-		if tasks[i].ID == ID {
-			task = &tasks[i]
-		}
-	}
+	task, _ := getTask(ID, tasks)
 
 	if task == nil {
 		return nil, getErrTaskNotFound(ID)
@@ -126,7 +121,7 @@ func (u *TaskUseCase) UpdateTask(ID uint64, status entity.Status, description st
 	if description != "" {
 		task.Description = description
 	}
-	
+
 	task.UpdatedAt = time.Now()
 	err = u.repo.UpdateAll(tasks)
 
@@ -135,4 +130,39 @@ func (u *TaskUseCase) UpdateTask(ID uint64, status entity.Status, description st
 	}
 
 	return task, nil
+}
+
+func getTask(ID uint64, tasks []entity.Task) (*entity.Task, int) {
+	for i := range tasks {
+		if tasks[i].ID == ID {
+			return &tasks[i], i
+		}
+	}
+
+	return nil, 0
+}
+
+func (u *TaskUseCase) DeleteTask(ID uint64) error {
+	tasks, err := u.GetAllTasks()
+
+	if err != nil {
+		return err
+	}
+
+	task, i := getTask(ID, tasks)
+
+	if task == nil {
+		return getErrTaskNotFound(ID)
+	}
+
+	tasks[i] = tasks[len(tasks)-1]
+	tasks = tasks[:len(tasks)-1]
+
+	err = u.repo.UpdateAll(tasks)
+
+	if err != nil {
+		return fmt.Errorf("%w: %w", errRepoDeleteTask, err)
+	}
+
+	return nil
 }

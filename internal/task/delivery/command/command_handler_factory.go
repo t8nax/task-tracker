@@ -33,6 +33,8 @@ func (f *CommandHandlerFactory) GetHandler(cmd Command) (CommandHandler, error) 
 		return &MarkCommandHanlder{f.uCase, entity.StatusInProgress}, nil
 	case СommandUpdate:
 		return &UpdateCommandHanlder{f.uCase}, nil
+	case CommandDelete:
+		return &DeleteCommandHandler{f.uCase}, nil
 	default:
 		return nil, fmt.Errorf("unknown command: %s", cmd)
 	}

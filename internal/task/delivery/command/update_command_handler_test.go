@@ -65,7 +65,7 @@ func TestUpdatexecute_ReturnsError_WhenUCaseReturnsError(t *testing.T) {
 	assert.ErrorIs(t, err, uCaseErr)
 }
 
-func TestUpdateExecute_ReturnsNils_WhenExecutionIsSuccessful(t *testing.T) {
+func TestUpdateExecute_ReturnsEmptySlice_WhenExecutionIsSuccessful(t *testing.T) {
 	ctl := gomock.NewController(t)
 	uCase := usecase.NewMockTaskUseCase(ctl)
 
@@ -81,5 +81,6 @@ func TestUpdateExecute_ReturnsNils_WhenExecutionIsSuccessful(t *testing.T) {
 	messages, err := handler.Execute([]string{"/path/to/file", "update", strconv.FormatUint(ID, 10), description})
 
 	assert.Nil(t, err)
-	assert.Nil(t, messages)
+	assert.NotNil(t, messages)
+	assert.Empty(t, messages)
 }

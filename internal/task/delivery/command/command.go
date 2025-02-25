@@ -8,4 +8,5 @@ const (
 	СommandMarkDone       Command = "mark-done"
 	СommandMarkInProgress Command = "mark-in-progress"
 	СommandUpdate         Command = "update"
+	CommandDelete		  Command = "delete"
 )

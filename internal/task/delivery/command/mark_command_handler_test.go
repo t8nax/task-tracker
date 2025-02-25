@@ -66,7 +66,7 @@ func TestMarkExecute_ReturnsError_WhenUCaseReturnsError(t *testing.T) {
 	assert.ErrorIs(t, err, uCaseErr)
 }
 
-func TestMarkExecute_ReturnsNils_WhenExecutionIsSuccessful(t *testing.T) {
+func TestMarkExecute_ReturnsEmptySlice_WhenExecutionIsSuccessful(t *testing.T) {
 	ctl := gomock.NewController(t)
 	uCase := usecase.NewMockTaskUseCase(ctl)
 
@@ -83,5 +83,6 @@ func TestMarkExecute_ReturnsNils_WhenExecutionIsSuccessful(t *testing.T) {
 	messages, err := handler.Execute([]string{"/path/to/file", "mark-done", strconv.FormatUint(ID, 10)})
 
 	assert.Nil(t, err)
-	assert.Nil(t, messages)
+	assert.NotNil(t, messages)
+	assert.Empty(t, messages)
 }

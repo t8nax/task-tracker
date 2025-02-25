@@ -25,5 +25,9 @@ func (h *MarkCommandHanlder) Execute(args []string) ([]string, error) {
 
 	_, err = h.uCase.UpdateTask(ID, h.status, "")
 
-	return nil, err
+	if err != nil {
+		return nil, err
+	}
+
+	return []string{}, nil
 }

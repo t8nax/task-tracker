@@ -3,15 +3,15 @@ package command
 import (
 	"strconv"
 
-	task "github.com/t8nax/task-tracker/internal/task"
+	"github.com/t8nax/task-tracker/internal/task"
 )
 
-type UpdateCommandHanlder struct {
+type DeleteCommandHandler struct {
 	uCase task.TaskUseCase
 }
 
-func (h *UpdateCommandHanlder) Execute(args []string) ([]string, error) {
-	if len(args) < 4 {
+func (h *DeleteCommandHandler) Execute(args []string) ([]string, error) {
+	if len(args) < 3 {
 		return nil, ErrInvalidArguments
 	}
 
@@ -21,9 +21,7 @@ func (h *UpdateCommandHanlder) Execute(args []string) ([]string, error) {
 		return nil, ErrUnableToParseTaskId
 	}
 
-	description := args[3]
-
-	_, err = h.uCase.UpdateTask(ID, "", description)
+	err = h.uCase.DeleteTask(ID)
 
 	if err != nil {
 		return nil, err
