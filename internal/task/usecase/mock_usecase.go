@@ -64,18 +64,18 @@ func (mr *MockTaskUseCaseMockRecorder) DeleteTask(ID interface{}) *gomock.Call {
 }
 
 // GetAllTasks mocks base method.
-func (m *MockTaskUseCase) GetAllTasks() ([]entity.Task, error) {
+func (m *MockTaskUseCase) GetAllTasks(status entity.Status) ([]entity.Task, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllTasks")
+	ret := m.ctrl.Call(m, "GetAllTasks", status)
 	ret0, _ := ret[0].([]entity.Task)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAllTasks indicates an expected call of GetAllTasks.
-func (mr *MockTaskUseCaseMockRecorder) GetAllTasks() *gomock.Call {
+func (mr *MockTaskUseCaseMockRecorder) GetAllTasks(status interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllTasks", reflect.TypeOf((*MockTaskUseCase)(nil).GetAllTasks))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllTasks", reflect.TypeOf((*MockTaskUseCase)(nil).GetAllTasks), status)
 }
 
 // UpdateTask mocks base method.

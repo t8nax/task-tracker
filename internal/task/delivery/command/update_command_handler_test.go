@@ -52,7 +52,7 @@ func TestUpdatexecute_ReturnsError_WhenUCaseReturnsError(t *testing.T) {
 
 	uCaseErr := errors.New("unable to update tasks")
 
-	uCase.EXPECT().UpdateTask(ID, entity.Status(""), description).Return(nil, uCaseErr)
+	uCase.EXPECT().UpdateTask(ID, entity.StatusNone, description).Return(nil, uCaseErr)
 
 	handler := &UpdateCommandHanlder{
 		uCase:  uCase,
@@ -72,7 +72,7 @@ func TestUpdateExecute_ReturnsEmptySlice_WhenExecutionIsSuccessful(t *testing.T)
 	description := "new description"
 	ID := uint64(1)
 
-	uCase.EXPECT().UpdateTask(ID, entity.Status(""), description).Return(&entity.Task{ID: ID}, nil)
+	uCase.EXPECT().UpdateTask(ID, entity.StatusNone, description).Return(&entity.Task{ID: ID}, nil)
 
 	handler := &UpdateCommandHanlder{
 		uCase:  uCase,

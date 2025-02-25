@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	task "github.com/t8nax/task-tracker/internal/task"
+	"github.com/t8nax/task-tracker/internal/task/entity"
 )
 
 type ListCommandHanlder struct {
@@ -11,13 +12,28 @@ type ListCommandHanlder struct {
 }
 
 func (h *ListCommandHanlder) Execute(args []string) ([]string, error) {
-	tasks, err := h.uCase.GetAllTasks()
+	if len(args) < 2 {
+		return nil, ErrInvalidArguments
+	}
+
+	status := entity.StatusNone
+	var err error
+
+	if len(args) > 2 {
+		status, err = entity.ParseStatus(args[2])
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	tasks, err := h.uCase.GetAllTasks(status)
 
 	if err != nil {
 		return nil, err
 	}
 
-	const template = "01-02-2026 15:04:05"
+	const template = "01-02-2006 15:04:05"
 	res := make([]string, 0, len(tasks))
 
 	for _, task := range tasks {

@@ -41,13 +41,26 @@ func NewTaskUseCase(r task.Repository) *TaskUseCase {
 	}
 }
 
-func (u *TaskUseCase) GetAllTasks() ([]entity.Task, error) {
+func (u *TaskUseCase) GetAllTasks(status entity.Status) ([]entity.Task, error) {
 	tasks, err := u.repo.GetAll()
+
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", errRepoGetTasks, err)
 	}
 
-	return tasks, nil
+	if status == entity.StatusNone {
+		return tasks, nil
+	}
+
+	filteredTasks := make([]entity.Task, 0, len(tasks))
+
+	for _, task := range tasks {
+		if task.Status == status {
+			filteredTasks = append(filteredTasks, task)
+		}
+	}
+
+	return filteredTasks, nil
 }
 
 func (u *TaskUseCase) AddTask(description string) (*entity.Task, error) {
@@ -55,7 +68,7 @@ func (u *TaskUseCase) AddTask(description string) (*entity.Task, error) {
 		return nil, errEmptyDescription
 	}
 
-	tasks, err := u.GetAllTasks()
+	tasks, err := u.GetAllTasks(entity.StatusNone)
 
 	if err != nil {
 		return nil, err
@@ -94,7 +107,7 @@ func (u *TaskUseCase) AddTask(description string) (*entity.Task, error) {
 }
 
 func (u *TaskUseCase) UpdateTask(ID uint64, status entity.Status, description string) (*entity.Task, error) {
-	tasks, err := u.GetAllTasks()
+	tasks, err := u.GetAllTasks(entity.StatusNone)
 
 	if err != nil {
 		return nil, err
@@ -143,7 +156,7 @@ func getTask(ID uint64, tasks []entity.Task) (*entity.Task, int) {
 }
 
 func (u *TaskUseCase) DeleteTask(ID uint64) error {
-	tasks, err := u.GetAllTasks()
+	tasks, err := u.GetAllTasks(entity.StatusNone)
 
 	if err != nil {
 		return err

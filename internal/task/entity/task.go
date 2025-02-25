@@ -2,14 +2,6 @@ package entity
 
 import "time"
 
-type Status string
-
-const (
-	StatusToDo       Status = "todo"
-	StatusInProgress Status = "in-progress"
-	StatusDone       Status = "done"
-)
-
 type Task struct {
 	ID          uint64    `json:"id"`
 	Description string    `json:"description"`
